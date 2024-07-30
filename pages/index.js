@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import counter_abi from "../artifacts/contracts/Counter.sol/Counter.json";
+import carDealershipAbi from "../artifacts/contracts/CarDealership.sol/CarDealership.json";
 
 export default function HomePage() {
   const [ethWallet, setEthWallet] = useState(undefined);
   const [account, setAccount] = useState(undefined);
-  const [counter, setCounter] = useState(undefined);
-  const [balance, setBalance] = useState(undefined);
-  const [details, setDetails] = useState(undefined);
+  const [carDealership, setCarDealership] = useState(undefined);
+  const [cars, setCars] = useState([]);
+  const [carModel, setCarModel] = useState("");
+  const [price, setPrice] = useState("");
+  const [vin, setVin] = useState("");
 
-  const contractAddress = "0xEf9f1ACE83dfbB8f559Da621f4aEA72C6EB10eBf";
-  const counterABI = counter_abi.abi;
+  const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE";
+  const carDealershipABI = carDealershipAbi.abi;
 
   const getWallet = async () => {
     if (window.ethereum) {
@@ -32,7 +34,7 @@ export default function HomePage() {
   const connectAccount = async () => {
     try {
       if (!ethWallet) {
-        alert('MetaMask wallet is required to connect');
+        alert("MetaMask wallet is required to connect");
         return;
       }
 
@@ -43,57 +45,34 @@ export default function HomePage() {
     }
   };
 
-  const getCounterContract = () => {
+  const getCarDealershipContract = () => {
     if (ethWallet && account) {
       const signer = ethWallet.getSigner();
-      const counterContract = new ethers.Contract(contractAddress, counterABI, signer);
-      setCounter(counterContract);
+      const carDealershipContract = new ethers.Contract(contractAddress, carDealershipABI, signer);
+      setCarDealership(carDealershipContract);
     }
   };
 
-  const getBalance = async () => {
+  const addCar = async () => {
     try {
-      if (counter) {
-        const currentBalance = await counter.getBalance();
-        setBalance(ethers.utils.formatEther(currentBalance));
-      }
-    } catch (error) {
-      console.error("Error fetching balance:", error);
-    }
-  };
-
-  const deposit = async (amount) => {
-    try {
-      if (counter) {
-        const tx = await counter.deposit({ value: ethers.utils.parseEther(amount.toString()) });
+      if (carDealership) {
+        const tx = await carDealership.addCar(carModel, ethers.utils.parseEther(price), vin);
         await tx.wait();
-        getBalance();
+        getCars();
       }
     } catch (error) {
-      console.error("Error depositing funds:", error);
+      console.error("Error adding car:", error);
     }
   };
 
-  const withdraw = async (amount) => {
+  const getCars = async () => {
     try {
-      if (counter) {
-        const tx = await counter.withdraw(ethers.utils.parseEther(amount.toString()));
-        await tx.wait();
-        getBalance();
+      if (carDealership) {
+        const cars = await carDealership.getCars();
+        setCars(cars);
       }
     } catch (error) {
-      console.error("Error withdrawing funds:", error);
-    }
-  };
-
-  const viewDetails = async () => {
-    try {
-      if (counter) {
-        const details = await counter.viewDetails();
-        setDetails(details);
-      }
-    } catch (error) {
-      console.error("Error fetching details:", error);
+      console.error("Error fetching cars:", error);
     }
   };
 
@@ -106,23 +85,38 @@ export default function HomePage() {
       return <button onClick={connectAccount}>Please connect your Metamask wallet</button>;
     }
 
-    if (balance === undefined) {
-      getBalance();
-    }
-
     return (
       <div>
         <p>Your Account: {account}</p>
-        <p>Contract Balance: {balance} ETH</p>
-        <button onClick={() => deposit(0.1)}>Deposit 0.1 ETH</button>
-        <button onClick={() => withdraw(0.05)}>Withdraw 0.05 ETH</button>
-        <button onClick={viewDetails}>View Contract Details</button>
-        {details && (
-          <div>
-            <p>Owner: {details[0]}</p>
-            <p>Contract Balance: {ethers.utils.formatEther(details[1])} ETH</p>
-          </div>
-        )}
+        <h2>Add Car</h2>
+        <input
+          type="text"
+          placeholder="Car Model"
+          value={carModel}
+          onChange={(e) => setCarModel(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="Price (ETH)"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="VIN"
+          value={vin}
+          onChange={(e) => setVin(e.target.value)}
+        />
+        <button onClick={addCar}>Add Car</button>
+        <h2>Cars List</h2>
+        <button onClick={getCars}>Get Cars</button>
+        <ul>
+          {cars.map((car, index) => (
+            <li key={index}>
+              Model: {car.carModel}, Price: {ethers.utils.formatEther(car.price)} ETH, VIN: {car.vin}
+            </li>
+          ))}
+        </ul>
       </div>
     );
   };
@@ -136,19 +130,312 @@ export default function HomePage() {
   }, [ethWallet]);
 
   useEffect(() => {
-    getCounterContract();
+    getCarDealershipContract();
   }, [account]);
 
   return (
     <main className="container">
-      <header><h1>Welcome to the Counter App!</h1></header>
+      <header><h1>Welcome to the Car Dealership App!</h1></header>
       {initUser()}
       <style jsx>{`
         .container {
           text-align: center;
         }
-      `}
-      </style>
+      `}</style>
+    </main>
+  );
+}
+import { useState, useEffect } from "react";
+import { ethers } from "ethers";
+import carDealershipAbi from "../artifacts/contracts/CarDealership.sol/CarDealership.json";
+
+export default function HomePage() {
+  const [ethWallet, setEthWallet] = useState(undefined);
+  const [account, setAccount] = useState(undefined);
+  const [carDealership, setCarDealership] = useState(undefined);
+  const [cars, setCars] = useState([]);
+  const [carModel, setCarModel] = useState("");
+  const [price, setPrice] = useState("");
+  const [vin, setVin] = useState("");
+
+  const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE";
+  const carDealershipABI = carDealershipAbi.abi;
+
+  const getWallet = async () => {
+    if (window.ethereum) {
+      setEthWallet(new ethers.providers.Web3Provider(window.ethereum));
+    }
+  };
+
+  const handleAccount = async () => {
+    if (ethWallet) {
+      const accounts = await ethWallet.listAccounts();
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+      } else {
+        setAccount(undefined);
+      }
+    }
+  };
+
+  const connectAccount = async () => {
+    try {
+      if (!ethWallet) {
+        alert("MetaMask wallet is required to connect");
+        return;
+      }
+
+      const accounts = await ethWallet.send("eth_requestAccounts");
+      setAccount(accounts[0]);
+    } catch (error) {
+      console.error("Failed to connect MetaMask:", error);
+    }
+  };
+
+  const getCarDealershipContract = () => {
+    if (ethWallet && account) {
+      const signer = ethWallet.getSigner();
+      const carDealershipContract = new ethers.Contract(contractAddress, carDealershipABI, signer);
+      setCarDealership(carDealershipContract);
+    }
+  };
+
+  const addCar = async () => {
+    try {
+      if (carDealership) {
+        const tx = await carDealership.addCar(carModel, ethers.utils.parseEther(price), vin);
+        await tx.wait();
+        getCars();
+      }
+    } catch (error) {
+      console.error("Error adding car:", error);
+    }
+  };
+
+  const getCars = async () => {
+    try {
+      if (carDealership) {
+        const cars = await carDealership.getCars();
+        setCars(cars);
+      }
+    } catch (error) {
+      console.error("Error fetching cars:", error);
+    }
+  };
+
+  const initUser = () => {
+    if (!ethWallet) {
+      return <p>Please install Metamask in order to use this application.</p>;
+    }
+
+    if (!account) {
+      return <button onClick={connectAccount}>Please connect your Metamask wallet</button>;
+    }
+
+    return (
+      <div>
+        <p>Your Account: {account}</p>
+        <h2>Add Car</h2>
+        <input
+          type="text"
+          placeholder="Car Model"
+          value={carModel}
+          onChange={(e) => setCarModel(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="Price (ETH)"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="VIN"
+          value={vin}
+          onChange={(e) => setVin(e.target.value)}
+        />
+        <button onClick={addCar}>Add Car</button>
+        <h2>Cars List</h2>
+        <button onClick={getCars}>Get Cars</button>
+        <ul>
+          {cars.map((car, index) => (
+            <li key={index}>
+              Model: {car.carModel}, Price: {ethers.utils.formatEther(car.price)} ETH, VIN: {car.vin}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    getWallet();
+  }, []);
+
+  useEffect(() => {
+    handleAccount();
+  }, [ethWallet]);
+
+  useEffect(() => {
+    getCarDealershipContract();
+  }, [account]);
+
+  return (
+    <main className="container">
+      <header><h1>Welcome to the Car Dealership App!</h1></header>
+      {initUser()}
+      <style jsx>{`
+        .container {
+          text-align: center;
+        }
+      `}</style>
+    </main>
+  );
+}
+import { useState, useEffect } from "react";
+import { ethers } from "ethers";
+import carDealershipAbi from "../artifacts/contracts/CarDealership.sol/CarDealership.json";
+
+export default function HomePage() {
+  const [ethWallet, setEthWallet] = useState(undefined);
+  const [account, setAccount] = useState(undefined);
+  const [carDealership, setCarDealership] = useState(undefined);
+  const [cars, setCars] = useState([]);
+  const [carModel, setCarModel] = useState("");
+  const [price, setPrice] = useState("");
+  const [vin, setVin] = useState("");
+
+  const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE";
+  const carDealershipABI = carDealershipAbi.abi;
+
+  const getWallet = async () => {
+    if (window.ethereum) {
+      setEthWallet(new ethers.providers.Web3Provider(window.ethereum));
+    }
+  };
+
+  const handleAccount = async () => {
+    if (ethWallet) {
+      const accounts = await ethWallet.listAccounts();
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+      } else {
+        setAccount(undefined);
+      }
+    }
+  };
+
+  const connectAccount = async () => {
+    try {
+      if (!ethWallet) {
+        alert("MetaMask wallet is required to connect");
+        return;
+      }
+
+      const accounts = await ethWallet.send("eth_requestAccounts");
+      setAccount(accounts[0]);
+    } catch (error) {
+      console.error("Failed to connect MetaMask:", error);
+    }
+  };
+
+  const getCarDealershipContract = () => {
+    if (ethWallet && account) {
+      const signer = ethWallet.getSigner();
+      const carDealershipContract = new ethers.Contract(contractAddress, carDealershipABI, signer);
+      setCarDealership(carDealershipContract);
+    }
+  };
+
+  const addCar = async () => {
+    try {
+      if (carDealership) {
+        const tx = await carDealership.addCar(carModel, ethers.utils.parseEther(price), vin);
+        await tx.wait();
+        getCars();
+      }
+    } catch (error) {
+      console.error("Error adding car:", error);
+    }
+  };
+
+  const getCars = async () => {
+    try {
+      if (carDealership) {
+        const cars = await carDealership.getCars();
+        setCars(cars);
+      }
+    } catch (error) {
+      console.error("Error fetching cars:", error);
+    }
+  };
+
+  const initUser = () => {
+    if (!ethWallet) {
+      return <p>Please install Metamask in order to use this application.</p>;
+    }
+
+    if (!account) {
+      return <button onClick={connectAccount}>Please connect your Metamask wallet</button>;
+    }
+
+    return (
+      <div>
+        <p>Your Account: {account}</p>
+        <h2>Add Car</h2>
+        <input
+          type="text"
+          placeholder="Car Model"
+          value={carModel}
+          onChange={(e) => setCarModel(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="Price (ETH)"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+        />
+        <input
+          type="text"
+          placeholder="VIN"
+          value={vin}
+          onChange={(e) => setVin(e.target.value)}
+        />
+        <button onClick={addCar}>Add Car</button>
+        <h2>Cars List</h2>
+        <button onClick={getCars}>Get Cars</button>
+        <ul>
+          {cars.map((car, index) => (
+            <li key={index}>
+              Model: {car.carModel}, Price: {ethers.utils.formatEther(car.price)} ETH, VIN: {car.vin}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    getWallet();
+  }, []);
+
+  useEffect(() => {
+    handleAccount();
+  }, [ethWallet]);
+
+  useEffect(() => {
+    getCarDealershipContract();
+  }, [account]);
+
+  return (
+    <main className="container">
+      <header><h1>Welcome to the Car Dealership App!</h1></header>
+      {initUser()}
+      <style jsx>{`
+        .container {
+          text-align: center;
+        }
+      `}</style>
     </main>
   );
 }
