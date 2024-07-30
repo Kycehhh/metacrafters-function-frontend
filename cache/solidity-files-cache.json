@@ -1,10 +1,10 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/workspace/SCM-Starter/contracts/Assessment.sol": {
-      "lastModificationDate": 1719217683254,
-      "contentHash": "0477404908ac71e0d55c44c6846ae653",
-      "sourceName": "contracts/Assessment.sol",
+    "C:\\Users\\Kyle\\Documents\\metacrafters-frontend\\metacrafters-function-frontend\\contracts\\CarDealership.sol": {
+      "lastModificationDate": 1722324838747,
+      "contentHash": "414a02a50ecb3574eff5365e1dfa319c",
+      "sourceName": "contracts/CarDealership.sol",
       "solcConfig": {
         "version": "0.8.17",
         "settings": {
@@ -30,10 +30,10 @@
       },
       "imports": [],
       "versionPragmas": [
-        "^0.8.9"
+        "^0.8.0"
       ],
       "artifacts": [
-        "Assessment"
+        "CarDealership"
       ]
     }
   }
