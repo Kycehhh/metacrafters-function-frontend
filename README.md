@@ -1,17 +1,16 @@
-# Ethereum Counter DApp
+# Car Dealership DApp
 
 ## Description
 
-This project demonstrates a decentralized application (DApp) built on Ethereum blockchain using Solidity smart contracts and React.js frontend. The DApp allows users to connect their MetaMask wallet, interact with a counter smart contract deployed on Ethereum test networks, view contract details, deposit funds, and withdraw funds.
+This project demonstrates a decentralized application (DApp) built on the Ethereum blockchain using Solidity smart contracts and a React.js frontend. The DApp allows users to interact with a smart contract to manage car listings, including adding new cars and viewing available cars.
 
 ## Smart Contract Functions
 
 The smart contract deployed for this DApp includes the following functions:
 
-- **getBalance**: Returns the current balance of the smart contract.
-- **deposit**: Allows users to deposit ETH into the smart contract.
-- **withdraw**: Allows the owner to withdraw ETH from the smart contract.
-- **viewDetails**: Returns the owner's address and the current balance of the smart contract.
+- **addCar**: Allows users to add a new car to the dealership with the car model, price, and VIN.
+- **getCars**: Returns a list of all cars available in the dealership.
+- **getCar**: Returns details of a specific car by its index.
 
 ## Frontend Features
 
@@ -49,13 +48,12 @@ After cloning the GitHub repository, follow these steps to get the code running 
 
 ### Executing Program
 
-To use the Ethereum Counter DApp:
+To use the Car Dealership DApp:
 
 - Connect your MetaMask wallet to the DApp.
-- View the current contract balance stored on the smart contract.
-- Deposit funds by clicking the "Deposit" button.
-- Withdraw funds by clicking the "Withdraw" button (only available to the owner).
-- View contract details by clicking the "View Contract Details" button.
+- View the list of cars available in the dealership.
+- Add new cars by providing the car model, price, and VIN.
+- View details of a specific car by its index.
 
 ## Help
 
@@ -63,7 +61,7 @@ For common problems or issues, please refer to the troubleshooting section in th
 
 ## Authors
 
-- [Ashley Manalo](https://github.com/qeewpi)
+- [Allen Kyle Sabilala](https://github.com/Kycehhh)
 
 ## License
 
