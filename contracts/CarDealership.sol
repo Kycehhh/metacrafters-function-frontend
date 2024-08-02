@@ -14,13 +14,17 @@ contract CarDealership {
         cars.push(Car(carModel, price, vin));
     }
 
-    function getCars() public view returns (Car[] memory) {
-        return cars;
+    function getCar(string memory vin) public view returns (string memory carModel, uint256 price, string memory vinNumber) {
+        for (uint256 i = 0; i < cars.length; i++) {
+            if (keccak256(abi.encodePacked(cars[i].vin)) == keccak256(abi.encodePacked(vin))) {
+                Car memory car = cars[i];
+                return (car.carModel, car.price, car.vin);
+            }
+        }
+        revert("Car not found");
     }
 
-    function getCar(uint256 index) public view returns (string memory carModel, uint256 price, string memory vin) {
-        require(index < cars.length, "Car index out of range");
-        Car memory car = cars[index];
-        return (car.carModel, car.price, car.vin);
+    function getCars() public view returns (Car[] memory) {
+        return cars;
     }
 }
